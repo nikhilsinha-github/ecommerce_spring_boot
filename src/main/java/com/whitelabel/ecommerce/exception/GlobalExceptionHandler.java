@@ -1,23 +1,30 @@
 package com.whitelabel.ecommerce.exception;
 
+import com.whitelabel.ecommerce.dto.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends RuntimeException {
 
     @ExceptionHandler(UserAlreadyPresentException.class)
-    public RuntimeException handleUserAlreadyPresent(UserAlreadyPresentException ex) {
-        throw new RuntimeException(ex.getMessage());
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Object> handleUserAlreadyPresent(UserAlreadyPresentException ex) {
+        return ApiResponse.error(409, ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public RuntimeException handleNotFoundException(NotFoundException ex) {
-        throw new RuntimeException(ex.getMessage());
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse<Object> handleNotFoundException(NotFoundException ex) {
+        return ApiResponse.error(404, ex.getMessage());
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
-    public RuntimeException handleAuthenticationFailureException(AuthenticationFailedException ex) {
-        throw new RuntimeException(ex.getMessage());
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Object> handleAuthenticationFailureException(AuthenticationFailedException ex) {
+        return ApiResponse.error(401, ex.getMessage());
     }
 }

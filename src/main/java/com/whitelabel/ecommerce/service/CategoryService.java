@@ -41,7 +41,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category updateCategory(Long id, String title, String description) {
+    public Category updateCategory(Long id, CategoryRequest request) {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
 
         if(optionalCategory.isEmpty()) {
@@ -49,8 +49,8 @@ public class CategoryService {
         }
 
         Category category = optionalCategory.get();
-        category.setTitle(title);
-        category.setDescription(description);
+        category.setTitle(request.title());
+        category.setDescription(request.description());
         return categoryRepository.save(category);
     }
 

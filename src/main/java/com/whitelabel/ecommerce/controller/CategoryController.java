@@ -65,8 +65,8 @@ public class CategoryController {
 
     @Operation(summary = "Update category")
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable Long id, @RequestBody String title, @RequestBody String description) {
-        return ResponseEntity.ok(ApiResponse.success(200,"Product updated successfully", categoryService.updateCategory(id, title, description)));
+    ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(200,"Product updated successfully", categoryService.updateCategory(id, request)));
     }
 
     @Operation(summary = "Delete category by Id")

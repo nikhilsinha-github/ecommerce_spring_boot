@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Standard API response wrapper")
-public record ApiResponse<T>(int status, String message, T data, Object error) {
+public record ApiResponse<T>(int status, String message, T data) {
 
     public static <T> ApiResponse<T> success(int status, String message, T data) {
-        return new ApiResponse<>(200, message, data, null);
+        return new ApiResponse<>(200, message, data);
     }
 
-    public static <T> ApiResponse<T> error(int status, String message, Object errorDetails) {
-        return new ApiResponse<>(status, message, null, errorDetails);
+    public static <T> ApiResponse<T> error(int status, String message) {
+        return new ApiResponse<>(status, message, null);
     }
 }

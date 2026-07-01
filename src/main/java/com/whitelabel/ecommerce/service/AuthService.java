@@ -38,10 +38,6 @@ public class AuthService {
 
         userRepository.save(user);
 
-        if(!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new AuthenticationFailedException("Authentication filed due to wrong credentials");
-        }
-
         return jwtService.generateToken(request.email());
     }
 
