@@ -20,6 +20,12 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
+    @ElementCollection
+    @CollectionTable(
+            name = "product_images",
+            joinColumns = @JoinColumn(name = "product_id")
+    )
+    @Column(name = "image_url")
     private List<String> images;
 
     private String size;

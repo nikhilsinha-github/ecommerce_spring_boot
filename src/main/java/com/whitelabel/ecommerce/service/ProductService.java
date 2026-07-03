@@ -1,8 +1,10 @@
 package com.whitelabel.ecommerce.service;
 
 import com.whitelabel.ecommerce.dto.ProductRequest;
+import com.whitelabel.ecommerce.dto.ProductResponse;
 import com.whitelabel.ecommerce.entity.Category;
 import com.whitelabel.ecommerce.entity.Product;
+import com.whitelabel.ecommerce.exception.NotFoundException;
 import com.whitelabel.ecommerce.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -27,22 +29,30 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Page<Product> getAllProducts(int pageNumber, int size) {
+    public Page<ProductResponse> getAllProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        return productRepository.findAll(pageable);
+        return productRepository.findAll(pageable)
+                .map(ProductResponse::fromEntity);
     }
 
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public Optional<ProductResponse> getProductById(Long id) {
+        return productRepository.findById(id).map(ProductResponse::fromEntity);
     }
 
-    public Optional<Page<Product>> getProductByTitle(int pageNumber, int size, String title) {
+    public Page<ProductResponse> getProductByTitle(int pageNumber, int size, String title) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        return productRepository.findByTitle(pageable, title);
+        Optional<Page<Product>> optionalProducts = productRepository.findByTitleContainingIgnoreCase(pageable, title);
+
+        if(optionalProducts.isEmpty()) {
+            throw new NotFoundException("No product found with title: " + title);
+        }
+
+        Page<Product> products = optionalProducts.get();
+        return products.map(ProductResponse::fromEntity);
     }
 
     @Transactional
-    public Product createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request) {
         Product product = new Product();
         product.setTitle(request.title());
         product.setDescription(request.description());
@@ -54,15 +64,17 @@ public class ProductService {
         Category category = entityManager.getReference(Category.class, request.category_id());
         product.setCategory(category);
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        return ProductResponse.fromEntity(savedProduct);
     }
 
-    public Product updateProduct(Long id, ProductRequest request) {
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
 
         Optional<Product> optionalProduct = productRepository.findById(id);
 
         if(optionalProduct.isEmpty()) {
-            throw new RuntimeException("No product found with id: " + id);
+            throw new NotFoundException("No product found with id: " + id);
         }
 
         Product product = optionalProduct.get();
@@ -77,7 +89,9 @@ public class ProductService {
         Category category = entityManager.getReference(Category.class, request.category_id());
         product.setCategory(category);
 
-        return productRepository.save(product);
+        Product updatedProduct = productRepository.save(product);
+
+        return ProductResponse.fromEntity(updatedProduct);
     }
 
     public void deleteProduct(Long id) {

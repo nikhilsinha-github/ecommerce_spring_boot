@@ -1,6 +1,10 @@
 package com.whitelabel.ecommerce.service;
 
+import com.whitelabel.ecommerce.dto.UserResponse;
 import com.whitelabel.ecommerce.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.whitelabel.ecommerce.repository.UserRepository;
 
@@ -15,7 +19,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<UserResponse> getAllUsers(int pageNumber, int size) {
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        return userRepository.findAll(pageable).map(UserResponse::fromEntity);
     }
 }
