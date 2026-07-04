@@ -54,8 +54,4 @@ public class Category {
         return updatedAt;
     }
 
-    public Category() {
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
 }

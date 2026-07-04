@@ -35,8 +35,15 @@ public class ProductService {
                 .map(ProductResponse::fromEntity);
     }
 
-    public Optional<ProductResponse> getProductById(Long id) {
-        return productRepository.findById(id).map(ProductResponse::fromEntity);
+    public ProductResponse getProductById(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+
+        if(optionalProduct.isEmpty()) {
+            throw new NotFoundException("No product found with id: " + id);
+        }
+
+        Product product = optionalProduct.get();
+        return ProductResponse.fromEntity(product);
     }
 
     public Page<ProductResponse> getProductByTitle(int pageNumber, int size, String title) {

@@ -1,6 +1,8 @@
 package com.whitelabel.ecommerce.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,12 +35,14 @@ public class Product {
     private String color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "column_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -114,8 +118,4 @@ public class Product {
         this.category = category;
     }
 
-    public Product() {
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
 }

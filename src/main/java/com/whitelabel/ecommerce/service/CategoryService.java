@@ -2,6 +2,7 @@ package com.whitelabel.ecommerce.service;
 
 import com.whitelabel.ecommerce.dto.CategoryRequest;
 import com.whitelabel.ecommerce.entity.Category;
+import com.whitelabel.ecommerce.exception.NotFoundException;
 import com.whitelabel.ecommerce.repository.CategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,13 +26,25 @@ public class CategoryService {
         return categoryRepository.findAll(pageable);
     }
 
-    public Optional<Page<Category>> getCategoryByTitle(int pageNumber, int size, String title) {
+    public Page<Category> getCategoryByTitle(int pageNumber, int size, String title) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        return categoryRepository.findByTitle(pageable, title);
+        Optional<Page<Category>> optionalCategory = categoryRepository.findByTitleContainingIgnoreCase(pageable, title);
+
+        if(optionalCategory.isEmpty()) {
+            throw new RuntimeException("Category with title: "+ title + " not found");
+        }
+
+        return optionalCategory.get();
     }
 
-    public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
+    public Category getCategoryById(Long id) {
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+
+        if(optionalCategory.isEmpty()) {
+            throw new NotFoundException("Category not found with id: " + id);
+        }
+
+        return optionalCategory.get();
     }
 
     public Category createCategory(CategoryRequest request) {

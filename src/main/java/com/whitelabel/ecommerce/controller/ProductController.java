@@ -8,6 +8,7 @@ import com.whitelabel.ecommerce.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,46 +28,74 @@ public class ProductController {
 
     @Operation(summary = "Get all products")
     @GetMapping
-    ApiResponse<Page<ProductResponse>> getAllProducts(
+    ResponseEntity<ApiResponse<Page<ProductResponse>>> getAllProducts(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title
     ) {
-        if(title != null && !title.isEmpty()) {
-            Page<ProductResponse> products = productService.getProductByTitle(pageNumber, size, title);
-            return ApiResponse.success(200, "Products retrieved successfully", products);
-        }
-        return ApiResponse.success(200, "Products retrieved successfully", productService.getAllProducts(pageNumber, size));
+            Page<ProductResponse> products = (title != null && !title.isEmpty())
+                    ? productService.getProductByTitle(pageNumber, size, title)
+                    : productService.getAllProducts(pageNumber, size);
+            return ResponseEntity.ok(
+                    ApiResponse.success(
+                            200,
+                            "Products retrieved successfully",
+                            products
+                    )
+            );
     }
 
     @Operation(summary = "Get product by id")
     @GetMapping("/{id}")
     ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
-        Optional<ProductResponse> optionalProduct = productService.getProductById(id);
+        ProductResponse product = productService.getProductById(id);
 
-        if(optionalProduct.isEmpty()) {
-            throw new RuntimeException("Product with id: " + id + " not found");
-        }
-
-        return ResponseEntity.ok(ApiResponse.success(200, "Product retrieved successfully", optionalProduct.get()));
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "Product retrieved successfully",
+                        product
+                )
+        );
     }
 
     @Operation(summary = "Create product")
     @PostMapping
-    ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
-        return ResponseEntity.ok(productService.createProduct(request));
+    ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(
+                        201,
+                        "Product created successfully",
+                        productService.createProduct(request)
+                ));
     }
 
     @Operation(summary = "Update product by id")
     @PutMapping("/{id}")
-    ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
-        return ResponseEntity.ok(productService.updateProduct(id, request));
+    ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductRequest request
+    ) {
+        ProductResponse updatedProduct = productService.updateProduct(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "Product updated successfully",
+                        updatedProduct
+                )
+        );
     }
 
     @Operation(summary = "Delete product by id")
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "Product deleted successfully",
+                        null
+                )
+        );
     }
 }
