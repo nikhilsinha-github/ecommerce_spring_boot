@@ -2,6 +2,7 @@ package com.whitelabel.ecommerce.dto;
 
 import com.whitelabel.ecommerce.entity.Product;
 
+import java.time.Instant;
 import java.util.List;
 
 public record ProductResponse(
@@ -13,7 +14,8 @@ public record ProductResponse(
         String size,
         String color,
         Long category_id,
-        String category_name) {
+        String category_name
+) {
     public static ProductResponse fromEntity(Product product) {
         return new ProductResponse(
                 product.getId(),
