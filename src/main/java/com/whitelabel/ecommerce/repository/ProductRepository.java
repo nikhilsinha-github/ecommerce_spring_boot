@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Optional<Page<Product>> findByTitleContainingIgnoreCase(Pageable pageable, String title);
+    Page<Product> findByTitleContainingIgnoreCase(Pageable pageable, String title);
 
 //    Product findByCategory(String category);
 }
